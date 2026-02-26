@@ -2,6 +2,8 @@
 
 Production-grade Node.js backend for IoT temperature sensor data ingestion with MongoDB, MQTT support, comprehensive validation, and error handling.
 
+🚀 **Live Demo:** https://faclon.onrender.com
+
 ## Tech Stack
 
 - **Node.js + Express** - REST API
@@ -11,25 +13,39 @@ Production-grade Node.js backend for IoT temperature sensor data ingestion with 
 - **Winston** - Logging
 - **Jest + Supertest** - Testing
 
-## Quick Start
+## Quick Setup
 
 ```bash
-# Install dependencies
+# 1. Clone repository
+git clone https://github.com/archit-asawa/faclon.git
+cd faclon
+
+# 2. Install dependencies
 npm install
 
-# Configure environment
-cp .env.example .env
-# Edit .env with your MongoDB URI
+# 3. Configure environment
+# Edit .env and add your MongoDB Atlas URI:
+# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/iot-sensors
 
-# Run development server
-npm run dev
+# 4. Start server
+npm run dev        # Development with auto-reload
+npm start          # Production mode
+npm test           # Run tests
+**Local:** `http://localhost:3000`  
+**Production:** `https://faclon.onrender.com`
 
-# Run tests
-npm test
-```
+## API Endpoints
 
-Server runs on `http://localhost:3000`
+Base URL:
+- Local: `http://localhost:3000`
+**GET** `/health`
 
+```bash
+# Local
+curl http://localhost:3000/health
+
+# Production
+curl https://faclon.onrender.com
 ## API Endpoints
 
 ### 1. Health Check
@@ -95,7 +111,13 @@ curl http://localhost:3000/health
 ### 2. Ingest Sensor Reading
 **POST** `/api/v1/sensor/ingest`
 
-**Request Body:**
+# Local
+curl -X POST http://localhost:3000/api/v1/sensor/ingest \
+  -H "Content-Type: application/json" \
+  -d '{"deviceId":"sensor-01","temperature":25.5}'
+
+# Production
+curl -X POST https://faclon.onrender.com
 ```json
 {
   "deviceId": "sensor-01",
@@ -116,7 +138,11 @@ curl -X POST http://localhost:3000/api/v1/sensor/ingest \
 {
   "success": true,
   "message": "Sensor reading ingested successfully",
-  "data": {
+# Local
+curl http://localhost:3000/api/v1/sensor/sensor-01/latest
+
+# Production
+curl https://faclon.onrender.com
     "_id": "699fe99cdb509c969370401d",
     "deviceId": "sensor-01",
     "temperature": 25.5,
@@ -140,7 +166,11 @@ curl http://localhost:3000/api/v1/sensor/sensor-01/latest
 ```json
 {
   "success": true,
-  "data": {
+# Local
+curl "http://localhost:3000/api/v1/sensor/sensor-01/history?limit=10&offset=0"
+
+# Production
+curl "https://faclon.onrender.com
     "deviceId": "sensor-01",
     "temperature": 25.5,
     "timestamp": 1740508790000,
