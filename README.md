@@ -24,6 +24,7 @@ cd faclon
 npm install
 
 # 3. Configure environment
+cp .env.example .env
 # Edit .env and add your MongoDB Atlas URI:
 # MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/iot-sensors
 
@@ -31,67 +32,19 @@ npm install
 npm run dev        # Development with auto-reload
 npm start          # Production mode
 npm test           # Run tests
-**Local:** `http://localhost:3000`  
-**Production:** `https://faclon.onrender.com`
-
-## API Endpoints
-
-Base URL:
-- Local: `http://localhost:3000`
-**GET** `/health`
-
-```bash
-# Local
-curl http://localhost:3000/health
-
-# Production
-curl https://faclon.onrender.com
-## API Endpoints
-
-### 1. Health Check
-```bash
-GET /health
 ```
 
-Response:
-```json
-{
-  "success": true,
-  "message": "Service is healthy",
-  "data": {
-    "status": "healthy",
-    "timestamp": "2024-01-15T10:20:40.000Z",
-    "uptime": 3600
-  }
-}
-```
+---
 
-### 2. Ingest Sensor Reading
-```bash
-POST /api/v1/sensor/ingest
-Content-Type: application/json
+## API Endpoints - Production
 
-{
-  "deviceId": "sensor-01",
-  "temperature": 32.1,
-  "timestamp": 1705312440000
-}
-```
-
-Response (201 Created):
-```json
-{
-  "success": true,
-  "message": "Sensor reading ingested successfully",
-  "data": {
-    "_id": "...",
-Base URL: `http://localhost:3000`
+**Base URL:** `https://faclon.onrender.com`
 
 ### 1. Health Check
 **GET** `/health`
 
 ```bash
-curl http://localhost:3000/health
+curl https://faclon.onrender.com/health
 ```
 
 **Response:**
@@ -111,13 +64,7 @@ curl http://localhost:3000/health
 ### 2. Ingest Sensor Reading
 **POST** `/api/v1/sensor/ingest`
 
-# Local
-curl -X POST http://localhost:3000/api/v1/sensor/ingest \
-  -H "Content-Type: application/json" \
-  -d '{"deviceId":"sensor-01","temperature":25.5}'
-
-# Production
-curl -X POST https://faclon.onrender.com
+**Request Body:**
 ```json
 {
   "deviceId": "sensor-01",
@@ -128,7 +75,7 @@ curl -X POST https://faclon.onrender.com
 
 **CURL:**
 ```bash
-curl -X POST http://localhost:3000/api/v1/sensor/ingest \
+curl -X POST https://faclon.onrender.com/api/v1/sensor/ingest \
   -H "Content-Type: application/json" \
   -d '{"deviceId":"sensor-01","temperature":25.5}'
 ```
@@ -138,11 +85,7 @@ curl -X POST http://localhost:3000/api/v1/sensor/ingest \
 {
   "success": true,
   "message": "Sensor reading ingested successfully",
-# Local
-curl http://localhost:3000/api/v1/sensor/sensor-01/latest
-
-# Production
-curl https://faclon.onrender.com
+  "data": {
     "_id": "699fe99cdb509c969370401d",
     "deviceId": "sensor-01",
     "temperature": 25.5,
@@ -159,18 +102,14 @@ curl https://faclon.onrender.com
 
 **CURL:**
 ```bash
-curl http://localhost:3000/api/v1/sensor/sensor-01/latest
+curl https://faclon.onrender.com/api/v1/sensor/sensor-01/latest
 ```
 
 **Response:**
 ```json
 {
   "success": true,
-# Local
-curl "http://localhost:3000/api/v1/sensor/sensor-01/history?limit=10&offset=0"
-
-# Production
-curl "https://faclon.onrender.com
+  "data": {
     "deviceId": "sensor-01",
     "temperature": 25.5,
     "timestamp": 1740508790000,
@@ -186,8 +125,104 @@ curl "https://faclon.onrender.com
 
 **CURL:**
 ```bash
+curl "https://faclon.onrender.com/api/v1/sensor/sensor-01/history?limit=10&offset=0"
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "readings": [...],
+    "total": 150,
+    "limit": 10,
+    "offset": 0
+  }
+}
+```
+
+---
+
+### 5. Get Statistics
+**GET** `/api/v1/sensor/:deviceId/stats`
+
+**CURL:**
+```bash
+curl https://faclon.onrender.com/api/v1/sensor/sensor-01/stats
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "_id": "sensor-01",
+    "minTemp": 20.5,
+    "maxTemp": 35.2,
+    "avgTemp": 27.8,
+    "count": 150
+  }
+}
+```
+
+---
+
+### 6. Delete Device Readings
+**DELETE** `/api/v1/sensor/:deviceId`
+
+**CURL:**
+```bash
+curl -X DELETE https://faclon.onrender.com/api/v1/sensor/sensor-01
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "deletedCount": 150
+  }
+}
+```
+
+---
+
+## API Endpoints - Local Development
+
+**Base URL:** `http://localhost:3000`
+
+### 1. Health Check
+```bash
+curl http://localhost:3000/health
+```
+
+### 2. Ingest Sensor Reading
+```bash
+curl -X POST http://localhost:3000/api/v1/sensor/ingest \
+  -H "Content-Type: application/json" \
+  -d '{"deviceId":"sensor-01","temperature":25.5}'
+```
+
+### 3. Get Latest Reading
+```bash
+curl http://localhost:3000/api/v1/sensor/sensor-01/latest
+```
+
+### 4. Get Reading History
+```bash
 curl "http://localhost:3000/api/v1/sensor/sensor-01/history?limit=10&offset=0"
 ```
+
+### 5. Get Statistics
+```bash
+curl http://localhost:3000/api/v1/sensor/sensor-01/stats
+```
+
+### 6. Delete Device Readings
+```bash
+curl -X DELETE http://localhost:3000/api/v1/sensor/sensor-01
+```
+
 ---
 
 ## Validation Rules
@@ -256,7 +291,7 @@ npm run test:watch    # Watch mode
 npm test -- --coverage # With coverage
 ```
 
-**Test Results:** 11/11 passing
+**Test Results:** 11/11 passing (60% coverage)
 
 ---
 
@@ -269,66 +304,39 @@ MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/iot-sensors
 MQTT_BROKER_URL=mqtt://broker.hivemq.com:1883
 LOG_LEVEL=info
 RATE_LIMIT_MAX_REQUESTS=100
-``83
-MQTT_CLIENT_ID=iot-backend-service
-MQTT_TOPIC_PATTERN=iot/sensor/+/temperature
 ```
 
-2. Publish messages in format:
-```json
-{
-  "temperature": 25.5,
-  "timestamp": 1705312440000
-}
-```
-
-3. Topic pattern: `iot/sensor/{deviceId}/temperature`
-
-## Logging
-
-Logs are stored in:
-- `logs/error.log` - Error logs only
-- `logs/combined.log` - All logs
-
-Log levels: `error`, `warn`, `info`, `debug`
+---
 
 ## Project Structure
 
 ```
-iot-sensor-backend/
-├── src/
-│   ├── config/           # Configuration files
-│   ├── models/           # Mongoose schemas
-│   ├── controllers/      # Request handlers
-│   ├── services/         # Business logic
-│   ├── routes/           # API routes
-│   ├── middlewares/      # Express middlewares
-│   ├── utils/            # Utility functions
-│   ├── validators/       # Input validation
-│   └── app.js            # Express setup
-├── tests/                # Test files
-├── server.js             # Entry point
-├── package.json
-├── .env.example
-├── .eslintrc.json
-├── .prettierrc
-├── .gitignore
-└── README.md
+src/
+├── config/         # DB, MQTT, env config
+├── models/         # Mongoose schemas
+├── controllers/    # Request handlers
+├── services/       # Business logic
+├── routes/         # API routes
+├── middlewares/    # Validation, error handling
+├── utils/          # Logger, helpers
+└── validators/     # Joi schemas
 ```
+
+---
 
 ## Features
 
-RESTful API with Express  
-MongoDB with connection pooling  
-MQTT real-time ingestion  
-Input validation (Joi)  
-Centralized error handling  
-Winston logging (file + console)  
-Rate limiting (100 req/min)  
-Security headers (Helmet)  
-CORS enabled  
-Unit + Integration tests  
-
+✅ RESTful API with Express  
+✅ MongoDB with connection pooling  
+✅ MQTT real-time ingestion  
+✅ Input validation (Joi)  
+✅ Centralized error handling  
+✅ Winston logging (file + console)  
+✅ Rate limiting (100 req/min)  
+✅ Security headers (Helmet)  
+✅ CORS enabled  
+✅ Unit + Integration tests  
+✅ 60% code coverage  
 
 ---
 
@@ -340,9 +348,12 @@ Unit + Integration tests
 
 **MQTT Not Working:**
 - Check backend logs for "MQTT connected successfully"
-- Ensure JSON is properly formatted: `{"temperature":25.5}`
+- Ensure JSON is properly formatted: `{"temperature":28.5}`
 
 **Port In Use:**
 ```bash
 PORT=3001 npm run dev
 ```
+
+---
+
