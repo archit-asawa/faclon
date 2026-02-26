@@ -286,21 +286,6 @@ iot-sensor-backend/
 └── README.md
 ```
 
-## Deployment
-
-src/
-├── config/         # DB, MQTT, env config
-├── models/         # Mongoose schemas
-├── controllers/    # Request handlers
-├── services/       # Business logic
-├── routes/         # API routes
-├── middlewares/    # Validation, error handling
-├── utils/          # Logger, helpers
-└── validators/     # Joi schemas
-```
-
----
-
 ## Features
 
 RESTful API with Express  
